@@ -1,6 +1,7 @@
 package ru.disdev.network.packets.out;
 
 import ru.disdev.network.packets.ClientPacket;
+import ru.disdev.network.packets.components.OutboundPacketsKeys;
 
 /**
  * Created by Dislike on 19.07.2016.
@@ -8,9 +9,9 @@ import ru.disdev.network.packets.ClientPacket;
 public class GCMRegistration extends ClientPacket {
 
     private final String registrationId;
-    private final long userId;
+    private final String userId;
 
-    public GCMRegistration(String registrationId, long userId) {
+    public GCMRegistration(String registrationId, String userId) {
         this.registrationId = registrationId;
         this.userId = userId;
     }
@@ -18,11 +19,11 @@ public class GCMRegistration extends ClientPacket {
     @Override
     public void encode() {
         writeString(registrationId);
-        writeLong(userId);
+        writeString(userId);
     }
 
     @Override
     public byte key() {
-        return 11;
+        return OutboundPacketsKeys.GCM_REGISTRATION_REQUEST;
     }
 }
