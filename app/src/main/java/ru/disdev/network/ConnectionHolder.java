@@ -1,5 +1,6 @@
 package ru.disdev.network;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.bootstrap.Bootstrap;
@@ -13,6 +14,7 @@ import ru.disdev.network.handlers.InboundTrafficHandler;
 import ru.disdev.network.handlers.PacketDecoder;
 import ru.disdev.network.handlers.PacketEncoder;
 import ru.disdev.network.packets.ClientPacket;
+import ru.disdev.network.packets.ServerPacket;
 
 /**
  * Created by Dislike on 19.07.2016.
@@ -26,8 +28,18 @@ public class ConnectionHolder {
     }
 
     private final EventLoopGroup group = new NioEventLoopGroup(2);
+    private final PacketWaiter waiter = new PacketWaiter();
+    private final Bootstrap bootstrap = new Bootstrap()
+            .channel(NioSocketChannel.class)
+            .group(group)
+            .handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(new PacketEncoder(), new PacketDecoder(), new InboundTrafficHandler(ConnectionHolder.this));
+                }
+            });
+
     private volatile Channel activeChannel;
-    private volatile boolean canMakeDisconnectNow;
 
     private ConnectionHolder() {
 
@@ -36,7 +48,7 @@ public class ConnectionHolder {
     public synchronized boolean disconnectIfEqual(Channel channel) {
         boolean equal = activeChannel != null && activeChannel.equals(channel);
         if (equal)
-            disconnect(true);
+            disconnect();
         return equal;
     }
 
@@ -54,44 +66,39 @@ public class ConnectionHolder {
         group.shutdownGracefully();
     }
 
-    public synchronized void disconnect(boolean orderDisconnect) {
+    public synchronized void disconnect() {
         if (!isConnected())
             return;
-        if (orderDisconnect || canMakeDisconnectNow) {
-            activeChannel.close();
-            activeChannel = null;
-        }
+        activeChannel.close();
+        activeChannel = null;
     }
 
     public synchronized ConnectionHolder connect() {
         if (isConnected())
             return this;
-        Bootstrap bootstrap = new Bootstrap();
-        bootstrap.channel(NioSocketChannel.class)
-                .group(group)
-                //.option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new PacketEncoder(), new PacketDecoder(), new InboundTrafficHandler(ConnectionHolder.this));
-                    }
-                });
-        try {
-            bootstrap.connect("192.168.0.101", 9191).await(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            //e.printStackTrace();
-        }
-
+        bootstrap.connect("5.166.229.183", 9191).awaitUninterruptibly(3, TimeUnit.SECONDS);
         return this;
     }
 
-    public ConnectionHolder sendPacketToServer(final ClientPacket packet) {
-        if (isConnected() && activeChannel.isWritable())
+    public boolean sendPacketToServer(final ClientPacket packet) {
+        if (isConnected() && activeChannel.isWritable()) {
             activeChannel.writeAndFlush(packet);
-        return this;
+            return true;
+        }
+        return false;
     }
 
-    public void setCanMakeDisconnectNow(boolean canMakeDisconnectNow) {
-        this.canMakeDisconnectNow = canMakeDisconnectNow;
+    public PacketWaiter sendPacketToServerAndWaitAnswer(final ClientPacket packet) {
+        boolean success = sendPacketToServer(packet);
+        waiter.setSuccessfullySentPackerToServer(success);
+        return waiter;
+    }
+
+    public boolean checkForWaiting(ServerPacket packet) {
+        return waiter.checkForWaitAndNotify(packet);
+    }
+
+    public Executor getExecutor() {
+        return group;
     }
 }

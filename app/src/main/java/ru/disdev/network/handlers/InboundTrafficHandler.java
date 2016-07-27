@@ -18,7 +18,8 @@ public class InboundTrafficHandler extends SimpleChannelInboundHandler<ServerPac
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ServerPacket msg) throws Exception {
-        msg.execute();
+        if (!connectionHolder.checkForWaiting(msg))
+            msg.execute();
     }
 
     @Override
