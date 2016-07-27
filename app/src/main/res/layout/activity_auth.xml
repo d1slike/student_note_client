@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/auth_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/material_deep_teal_200"
+    android:orientation="vertical"
+    android:weightSum="4"
+    tools:context=".ui.AuthActivity">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:baselineAligned="false"
+        android:measureWithLargestChild="false"
+        android:background="@color/material_grey_100">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/authInfo"
+            android:id="@+id/authInfo"
+            android:layout_marginTop="200dp"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/authWaitProgressBar"
+            android:layout_gravity="center_horizontal"
+            android:visibility="invisible"
+            android:indeterminate="true"
+            android:layout_marginTop="20dp" />
+
+        <com.google.android.gms.common.SignInButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/signInButton"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

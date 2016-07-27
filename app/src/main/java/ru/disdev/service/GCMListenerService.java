@@ -12,7 +12,6 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
-import ru.disdev.MainActivity;
 import ru.disdev.R;
 
 /**
@@ -29,7 +28,7 @@ public class GCMListenerService extends GcmListenerService {
 
     private void sendNotification(String message) {
 
-        NotificationCompat.Builder mBuilder =
+        /*NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                         .setContentTitle("My notification")
@@ -48,7 +47,7 @@ public class GCMListenerService extends GcmListenerService {
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(77, mBuilder.build());
+        mNotificationManager.notify(77, mBuilder.build());*/
     }
 
 }
