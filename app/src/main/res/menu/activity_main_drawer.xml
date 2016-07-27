@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/news_icon"
+            android:title="@string/nav_menu_news" />
+        <item
+            android:id="@+id/nav_chat"
+            android:icon="@drawable/chat_icon"
+            android:title="@string/nav_menu_chat" />
+    </group>
+
+    <item
+        android:id="@+id/nav_elder_menu"
+        android:title="@string/nav_label_elder_menu">
+        <menu>
+            <item
+                android:id="@+id/nav_new_post"
+                android:icon="@drawable/new_post_icon"
+                android:title="@string/nav_menu_new_post" />
+            <item
+                android:id="@+id/nav_group_menu"
+                android:icon="@drawable/group_menu_icon"
+                android:title="@string/nav_menu_group" />
+        </menu>
+    </item>
+
+    <item android:title="@string/nav_label_exit">
+        <menu>
+            <item
+                android:id="@+id/nav_change_group"
+                android:icon="@drawable/exit_icon"
+                android:title="@string/nav_menu_group_change" />
+            <item
+                android:id="@+id/nav_change_user"
+                android:icon="@drawable/change_user_icon"
+                android:title="@string/nav_menu_change_user" />
+        </menu>
+    </item>
+
+</menu>
