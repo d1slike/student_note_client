@@ -16,7 +16,7 @@ public abstract class ServerPacket extends AbstractPacket {
     protected final String readString() {
         StringBuilder builder = new StringBuilder();
         char c;
-        while (buffer.isReadable() && (c = buffer.readChar()) != '\0')
+        while ((c = buffer.readChar()) != '\0')
             builder.append(c);
         return builder.toString();
     }
