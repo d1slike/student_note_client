@@ -18,7 +18,7 @@ public class PacketWaiter {
     public ServerPacket waitAnswer(byte packetId, long maxWaitTimeInSeconds) {
         synchronized (monitor) {
             packetsKeyForWaiting = packetId;
-            if (!successfullySentPackerToServer || waitAnswer) //waitAnswer if alrady wait some packet
+            if (!successfullySentPackerToServer || waitAnswer) //waitAnswer if already wait some packet
                 return null;
             if (answer != null && packetsKeyForWaiting == answer.key())
                 return answer;
@@ -31,7 +31,7 @@ public class PacketWaiter {
                 } catch (InterruptedException ignored) {
                 }
             }
-            waitAnswer = false; //if time is over and answer was not get
+            waitAnswer = false; //if time is over and answer was not came
             ServerPacket copy = answer;
             answer = null;
             return copy;
@@ -40,7 +40,7 @@ public class PacketWaiter {
 
     boolean checkForWaitAndNotify(ServerPacket packet) {
         final boolean equal = packetsKeyForWaiting == packet.key();
-        if (equal) {
+        if (equal && waitAnswer) {
             synchronized (monitor) {
                 answer = packet;
                 waitAnswer = false;

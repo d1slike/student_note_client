@@ -2,10 +2,6 @@ package ru.disdev.utils;
 
 import android.os.AsyncTask;
 
-import com.fernandocejas.arrow.optional.Optional;
-
-import java.io.Serializable;
-
 import ru.disdev.collbacks.Consumer;
 import ru.disdev.collbacks.Producer;
 import ru.disdev.network.ConnectionHolder;
@@ -64,6 +60,10 @@ public class ConcurrencyUtils {
         }.executeOnExecutor(ConnectionHolder.getInstance().getExecutor());
 
         return asyncTask;
+    }
+
+    public static void executeOnBackground(Runnable runnable) {
+        ConnectionHolder.getInstance().getExecutor().execute(runnable);
     }
 
     private static class RequestInfo {

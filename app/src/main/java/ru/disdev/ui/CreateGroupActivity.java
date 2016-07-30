@@ -1,11 +1,10 @@
 package ru.disdev.ui;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import ru.disdev.R;
 import ru.disdev.UserSettings;
@@ -16,6 +15,7 @@ import ru.disdev.network.packets.components.InboundPacketsKeys;
 import ru.disdev.network.packets.in.CreateGroupAnswer;
 import ru.disdev.network.packets.out.CreateGroupRequest;
 import ru.disdev.utils.ConcurrencyUtils;
+import ru.disdev.utils.ToastUtils;
 
 public class CreateGroupActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -59,12 +59,13 @@ public class CreateGroupActivity extends AppCompatActivity implements View.OnCli
                 boolean isSuccess = answer != null && answer.isSuccess();
                 if (isSuccess) {
                     UserSettings.getUserInfo().setGroupId(answer.getGroupId());
+                    UserSettings.makeElderOfGroup();
                     setResult(SUCCESS_CREATE_GROUP_RESULT_ID);
                     finish();
                 } else {
                     hideProgressBar();
                     allowPressBack = true;
-                    Toast.makeText(CreateGroupActivity.this, "Сервер не отвечает", Toast.LENGTH_SHORT).show();
+                    ToastUtils.showShortTimeToast(CreateGroupActivity.this, "Сервер не отвечает");
                 }
             }
         };

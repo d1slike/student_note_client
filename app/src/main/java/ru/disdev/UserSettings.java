@@ -29,5 +29,10 @@ public class UserSettings {
         return userInfo.getGroupId() != -1;
     }
 
+    public static void makeElderOfGroup() {
+        userInfo.setCanEditThisGroup(true);
+        userInfo.setCanMakeNewPost(true);
+    }
+
 
 }

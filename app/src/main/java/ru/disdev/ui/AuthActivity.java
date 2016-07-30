@@ -17,14 +17,14 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
 import ru.disdev.R;
-import ru.disdev.ServiceStarter;
 import ru.disdev.UserSettings;
 import ru.disdev.collbacks.AuthResultHandler;
+import ru.disdev.collbacks.Consumer;
+import ru.disdev.collbacks.Producer;
 import ru.disdev.controllers.AuthController;
 import ru.disdev.network.ConnectionHolder;
 import ru.disdev.utils.ConcurrencyUtils;
-import ru.disdev.collbacks.Consumer;
-import ru.disdev.collbacks.Producer;
+import ru.disdev.utils.ToastUtils;
 
 /**
  * Created by DisDev on 23.07.2016.
@@ -34,7 +34,20 @@ public class AuthActivity extends FragmentActivity {
     private TextView authInfo;
     private ProgressBar waitAuthProgressBar;
 
-    private AuthResultHandler manualSignInHandler;
+    private AuthResultHandler signInHandler = new AuthResultHandler() {
+        @Override
+        public void onSuccess() {
+            onSuccessAuth();
+        }
+
+        @Override
+        public void onError(int errorCode) {
+            if (errorCode == GoogleSignInStatusCodes.NETWORK_ERROR)
+                ToastUtils.showShortTimeToast(AuthActivity.this, "Ошибка соединения");
+            updateUI(true);
+        }
+    };
+
     private GoogleApiClient client;
 
     @Override
@@ -54,17 +67,7 @@ public class AuthActivity extends FragmentActivity {
                 startActivityForResult(intent, AuthController.AUTH_REQUEST);
             }
         });
-        manualSignInHandler = new AuthResultHandler() {
-            @Override
-            public void onSuccess() {
-                onSuccessAuth();
-            }
 
-            @Override
-            public void onError(int errorCode) {
-                updateUI(true);
-            }
-        };
 
         if (getIntent().getBooleanExtra(AuthController.MAKE_LOGOUT_EXTRA_ID, false)) {
             AuthController.signOut(client, new ResultCallback<Status>() {
@@ -87,19 +90,7 @@ public class AuthActivity extends FragmentActivity {
             }, new Consumer<Void>() {
                 @Override
                 public void consume(Void aVoid) {
-                    AuthController.silentSignIn(client, new AuthResultHandler() {
-                        @Override
-                        public void onSuccess() {
-                            onSuccessAuth();
-                        }
-
-                        @Override
-                        public void onError(int errorCode) {
-                            if (errorCode == GoogleSignInStatusCodes.NETWORK_ERROR)
-                                authInfo.setText("Ошибка установки соединения с сервером");
-                            updateUI(true);
-                        }
-                    });
+                    AuthController.silentSignIn(client, signInHandler);
                 }
             });
         } else
@@ -108,11 +99,11 @@ public class AuthActivity extends FragmentActivity {
     }
 
     private void updateUI(boolean needAuth) {
-        if (needAuth) {
+        if (needAuth && signInButton.getVisibility() == View.INVISIBLE) {
             signInButton.setVisibility(View.VISIBLE);
             authInfo.setVisibility(View.VISIBLE);
             waitAuthProgressBar.setVisibility(View.INVISIBLE);
-        } else {
+        } else if (signInButton.getVisibility() == View.VISIBLE) {
             signInButton.setVisibility(View.INVISIBLE);
             authInfo.setVisibility(View.INVISIBLE);
             waitAuthProgressBar.setVisibility(View.VISIBLE);
@@ -124,14 +115,14 @@ public class AuthActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AuthController.AUTH_REQUEST) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            AuthController.handleSighInResult(result, manualSignInHandler);
+            AuthController.handleSighInResult(result, signInHandler);
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        manualSignInHandler = null;
+        signInHandler = null;
         client = null;
     }
 

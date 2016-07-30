@@ -76,7 +76,7 @@ public class ConnectionHolder {
     public synchronized ConnectionHolder connect() {
         if (isConnected())
             return this;
-        bootstrap.connect("5.166.229.183", 9191).awaitUninterruptibly(3, TimeUnit.SECONDS);
+        bootstrap.connect("192.168.0.102", 9191).awaitUninterruptibly(3, TimeUnit.SECONDS);
         return this;
     }
 
